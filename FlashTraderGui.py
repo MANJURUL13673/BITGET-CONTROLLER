@@ -46,12 +46,29 @@ class FlashTraderMain(QMainWindow):
     def create_toolbar(self, parent_layout):
         toolbar_layout = QHBoxLayout()
         
+         # Add image at the beginning of toolbar
+        image_label = QLabel()
+        pixmap = QPixmap("FlashExecutor.jpg")  # Replace with your actual image path
+    
+        # Scale the image to fit toolbar height (adjust size as needed)
+        scaled_pixmap = pixmap.scaled(60, 60, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        image_label.setPixmap(scaled_pixmap)
+        image_label.setAlignment(Qt.AlignCenter)
+    
+        # Optional: Add some margin around the image
+        image_label.setContentsMargins(10, 0, 0, 0)
+    
+        toolbar_layout.addWidget(image_label)
+
         # Toolbar buttons
         left_buttons = [
             ("Connect User API", "#7c7c7c"),
             ("API tester", "#7c7c7c"),
             ("API strings tester", "#7c7c7c"),
         ]
+
+        buttons_sub_text = ("Test OK\nNext test in 59 sec")
+
 
         right_button = ("Disconnect User and System API", "#7c7c7c")
         
@@ -61,15 +78,14 @@ class FlashTraderMain(QMainWindow):
                 spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
                 toolbar_layout.addItem(spacer)
 
-            btn = QPushButton(text)
+            btn = QPushButton()
             btn.setStyleSheet(f"""
                 QPushButton {{
                     background-color: {color};
-                    color: black;
                     border: 1px solid #666;
                     padding: 8px 40px;
-                    font-size: 12px;
-                    font-weight: bold;
+                    min-width: 180px;
+                    min-height: 20px;
                     border-top-left-radius: 6px;
                     border-top-right-radius: 6px;
                 }}
@@ -77,7 +93,28 @@ class FlashTraderMain(QMainWindow):
                     background-color: {self.lighten_color(color)};
                 }}
             """)
-            toolbar_layout.addWidget(btn)
+             # Create a layout for the button content
+            button_layout = QHBoxLayout(btn)
+            button_layout.setContentsMargins(10, 5, 10, 5)
+            button_layout.setSpacing(4)
+    
+            # First text line
+            label1 = QLabel(text)
+            label1.setAlignment(Qt.AlignCenter)
+            label1.setStyleSheet("font-weight: bold; font-size: 12px; color: black;")
+
+            if text != "Connect User API":
+                # Second text line
+                label2 = QLabel(buttons_sub_text)
+                label2.setAlignment(Qt.AlignLeft)
+                label2.setStyleSheet("font-weight: normal; font-size: 10px; color: #00FF00;")
+    
+            button_layout.addWidget(label1)
+            if text != "Connect User API":
+                button_layout.addWidget(label2)
+            toolbar_layout.addWidget(btn, 0, Qt.AlignBottom)
+            #btn.setFixedSize(container.sizeHint())
+
         # Add a stretch to push following items to the right
         toolbar_layout.addStretch()
          # Add the right-side button
@@ -88,7 +125,9 @@ class FlashTraderMain(QMainWindow):
                 background-color: {color};
                 color: red;
                 border: 1px solid #666;
-                padding: 8px 30px;
+                padding: 8px 40px;
+                min-width: 180px;
+                min-height: 20px;
                 font-size: 12px;
                 font-weight: bold;
                 border-top-left-radius: 6px;
@@ -98,8 +137,8 @@ class FlashTraderMain(QMainWindow):
                 background-color: {self.lighten_color(color)};
             }}
         """)
-        toolbar_layout.addWidget(btn)
-        toolbar_layout.setContentsMargins(0, 10, 0, 0)
+        toolbar_layout.addWidget(btn, 0, Qt.AlignBottom)
+        #toolbar_layout.setContentsMargins(0, 10, 0, 0)
         parent_layout.addLayout(toolbar_layout)
 
     def lighten_color(self, color):
