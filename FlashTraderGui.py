@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+import AngledButton
 
 class FlashTraderMain(QMainWindow):
     def __init__(self):
@@ -10,18 +11,11 @@ class FlashTraderMain(QMainWindow):
     def initUI(self):
         self.setWindowTitle('Flash Executor')
         self.setGeometry(100, 100, 1200, 700)
-        #self.setStyleSheet("""
-        #    QToolBar {
-        #        background-color: #DFDFDF;
-        #    }
-        #    QMainWindow {
-        #        background-color: #2b2b2b;
-        #    }
-        #""")
 
         # Create central widget
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
+        
 
         # Main layout
         main_layout = QVBoxLayout(central_widget)
@@ -32,16 +26,31 @@ class FlashTraderMain(QMainWindow):
         self.create_toolbar(main_layout)
 
         # Trading panels layout
-        trading_layout = QHBoxLayout()
-        main_layout.addLayout(trading_layout)
+        stacked = QStackedLayout()
+        stacked.setStackingMode(QStackedLayout.StackingMode.StackAll)
+
+        # Overlay layout
+        overlay_widget = QWidget()
+        overlay_layout = QVBoxLayout(overlay_widget)
+        overlay_layout.setContentsMargins(0, 0, 0, 0)
+        overlay_layout.setAlignment(Qt.AlignTop | Qt.AlignCenter)
+        self.create_center_panel(overlay_layout)
+
+        # left and right panel layout
+        widget = QWidget()
+        trading_layout = QHBoxLayout(widget)
+        trading_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.addLayout(stacked)
 
         # Create trading panels
         self.create_long_panel(trading_layout)
-        self.create_center_panel(trading_layout)
         self.create_short_panel(trading_layout)
 
+        # setup the stacked to visualize
+        stacked.addWidget(overlay_widget)
+        stacked.addWidget(widget)
         # Status bars at bottom
-        self.create_status_bars(main_layout)
+        #self.create_status_bars(main_layout)
 
     def create_toolbar(self, parent_layout):
         toolbar_layout = QHBoxLayout()
@@ -170,41 +179,62 @@ class FlashTraderMain(QMainWindow):
         long_frame = QFrame()
         long_frame.setStyleSheet("""
             QFrame {
-                background-color: #2d5a3d;
-                border: 2px solid #4CAF50;
+                background-color: #006634;
+                border: 2px solid #E6E6E6;
                 border-radius: 5px;
             }
         """)
         
         long_layout = QVBoxLayout(long_frame)
-        
+        long_layout.setContentsMargins(20, 20, 20, 20)
+
         # Title
         title = QLabel("OPEN LONG")
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet("""
             QLabel {
-                background-color: #4CAF50;
-                color: white;
-                font-weight: bold;
-                font-size: 14px;
-                padding: 8px;
-                margin-bottom: 10px;
+                color: #FEFFFF;
+                font-size: 20px;
+                padding: 8px 8px 0px 8px;
+                border: none;
             }
         """)
         long_layout.addWidget(title)
         
-        # ETH trading info
-        self.create_trading_info(long_layout, "green")
+        # Add a white line under the title
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
+        line.setFrameShadow(QFrame.Sunken)
+        line.setStyleSheet("QFrame { border: 4px solid #FEFFFF; }")
+        line.setFixedHeight(4) 
+        line.setFixedWidth(title.sizeHint().width() * 2)  # Adjust width to match title
+        long_layout.addWidget(line, alignment=Qt.AlignHCenter)
+
+        # sub layout
+        long_sub_frame = QFrame()
+        long_sub_frame.setStyleSheet("""
+              QFrame {
+                background-color: #029834;
+                border: none;
+                border-radius: 0px;
+            }             
+        """)
+        long_sub_layout = QVBoxLayout(long_sub_frame)
+        long_sub_layout.setContentsMargins(40, 20, 40, 20)
+        long_layout.addWidget(long_sub_frame)
         
-        # Lot size buttons
-        self.create_lot_buttons(long_layout, "long", "#4CAF50")
+        # bLot size buttons
+        self.create_lot_buttons(long_sub_layout, "long", "#E6E6E6")
         
+        # auto take profit
+        self.create_profit_buttons(long_sub_layout, "long", "#E6E6E6")
+
         # Risk management section
-        self.create_risk_section(long_layout, "long", "#4CAF50")
+        #self.create_risk_section(long_layout, "long", "#4CAF50")
         
         # Auto trading strategy
-        self.create_auto_trading(long_layout, "#4CAF50")
-        
+        #self.create_auto_trading(long_layout, "#4CAF50")
+        long_layout.addStretch()
         parent_layout.addWidget(long_frame, 1)
 
     def create_short_panel(self, parent_layout):
@@ -212,41 +242,65 @@ class FlashTraderMain(QMainWindow):
         short_frame = QFrame()
         short_frame.setStyleSheet("""
             QFrame {
-                background-color: #5a2d2d;
-                border: 2px solid #f44336;
+                background-color: #9c0403;
+                border: 2px solid #E6E6E6;
                 border-radius: 5px;
             }
         """)
         
         short_layout = QVBoxLayout(short_frame)
+        short_layout.setContentsMargins(20, 20, 20, 20)
         
         # Title
         title = QLabel("OPEN SHORT")
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet("""
             QLabel {
-                background-color: #f44336;
-                color: white;
-                font-weight: bold;
-                font-size: 14px;
-                padding: 8px;
-                margin-bottom: 10px;
+                color: #FEFFFF;
+                font-size: 20px;
+                padding: 8px 8px 0px 8px;
+                border: none;
             }
         """)
         short_layout.addWidget(title)
-        
+
+        # Add a white line under the title
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
+        line.setFrameShadow(QFrame.Sunken)
+        line.setStyleSheet("QFrame { border: 4px solid #FEFFFF; }")
+        line.setFixedHeight(4) 
+        line.setFixedWidth(title.sizeHint().width() * 2.25)  # Adjust width to match title
+        short_layout.addWidget(line, alignment=Qt.AlignHCenter) 
+
+        short_sub_frame = QFrame()
+        short_sub_frame.setStyleSheet("""
+              QFrame {
+                background-color: #FE0000;
+                border: none;
+                border-radius: 0px;
+            }             
+        """)
+        short_sub_layout = QVBoxLayout(short_sub_frame)
+        short_sub_layout.setContentsMargins(40, 20, 40, 20)
+        short_layout.addWidget(short_sub_frame)
+
         # ETH trading info
-        self.create_trading_info(short_layout, "red")
+        # self.create_trading_info(short_sub_layout, "red")
         
         # Lot size buttons
-        self.create_lot_buttons(short_layout, "short", "#f44336")
-        
+        self.create_lot_buttons(short_sub_layout, "short", "#E6E6E6")
+
+        # auto take profit buttons
+        self.create_profit_buttons(short_sub_layout, "short", "#E6E6E6")
+
         # Risk management section
-        self.create_risk_section(short_layout, "short", "#f44336")
+        #self.create_risk_section(short_layout, "short", "#f44336")
         
         # Auto trading strategy
-        self.create_auto_trading(short_layout, "#f44336")
+        #self.create_auto_trading(short_layout, "#f44336")
         
+        short_layout.addStretch()
         parent_layout.addWidget(short_frame, 1)
         
     def create_center_panel(self, parent_layout):
@@ -254,45 +308,45 @@ class FlashTraderMain(QMainWindow):
         center_frame = QFrame()
         center_frame.setStyleSheet("""
             QFrame {
-                background-color: #3a3a3a;
-                border: 1px solid #666;
-                border-radius: 5px;
+                background-color: #808080;
+                border: 4px solid #E6E6E6;
             }
         """)
-        center_frame.setFixedWidth(150)
+        center_frame.setFixedWidth(250)
+        center_frame.setFixedHeight(150)
         
         center_layout = QVBoxLayout(center_frame)
         
         # Symbol selector
-        symbol_label = QLabel("ETH/USDT")
-        symbol_label.setAlignment(Qt.AlignCenter)
-        symbol_label.setStyleSheet("""
-            QLabel {
-                background-color: #666;
-                color: white;
-                font-weight: bold;
-                font-size: 16px;
-                padding: 15px;
-                border-radius: 5px;
-            }
-        """)
-        center_layout.addWidget(symbol_label)
+        #symbol_label = QLabel("ETH/USDT")
+        #symbol_label.setAlignment(Qt.AlignCenter)
+        #symbol_label.setStyleSheet("""
+        #    QLabel {
+        #        background-color: #666;
+        #        color: white;
+        #        font-weight: bold;
+        #        font-size: 16px;
+        #        padding: 15px;
+        #        border-radius: 5px;
+        #    }
+        #""")
+        #center_layout.addWidget(symbol_label)
         
         # Current price (example)
-        price_label = QLabel("$3,245.67")
-        price_label.setAlignment(Qt.AlignCenter)
-        price_label.setStyleSheet("""
-            QLabel {
-                color: #4CAF50;
-                font-size: 14px;
-                font-weight: bold;
-                padding: 10px;
-            }
-        """)
-        center_layout.addWidget(price_label)
+        #price_label = QLabel("$3,245.67")
+        #price_label.setAlignment(Qt.AlignCenter)
+        #price_label.setStyleSheet("""
+        #    QLabel {
+        #        color: #4CAF50;
+        #        font-size: 14px;
+        #        font-weight: bold;
+        #        padding: 10px;
+        #    }
+        #""")
+        #center_layout.addWidget(price_label)
         
-        center_layout.addStretch()
-        parent_layout.addWidget(center_frame)  
+        #center_layout.addStretch()
+        parent_layout.addWidget(center_frame, 1)  
 
     def create_status_bars(self, parent_layout):
         # Bottom status bars
@@ -329,52 +383,61 @@ class FlashTraderMain(QMainWindow):
         
         parent_layout.addLayout(status_layout)
 
-    def create_trading_info(self, parent_layout, color_theme):
-        info_layout = QHBoxLayout()
-        
-        # Balance info
-        balance_label = QLabel("Available Balance:")
-        balance_value = QLabel("$50,000.00")
-        
-        color = "#4CAF50" if color_theme == "green" else "#f44336"
-        
-        for label in [balance_label, balance_value]:
-            label.setStyleSheet(f"""
-                QLabel {{
-                    color: white;
-                    font-size: 11px;
-                    padding: 2px;
-                }}
-            """)
-        
-        balance_value.setStyleSheet(f"""
-            QLabel {{
-                color: {color};
-                font-weight: bold;
-                font-size: 11px;
-            }}
-        """)
-        
-        info_layout.addWidget(balance_label)
-        info_layout.addWidget(balance_value)
-        info_layout.addStretch()
-        
-        parent_layout.addLayout(info_layout)
-        
+    def create_profit_buttons(self, parent_layout, side, color):
+        # Profit buttons section
+        profit_label = QLabel("Buy with auto take profit" if side == "long" else "Sell with auto take profit")
+        if side == "long":
+            profit_label.setStyleSheet("color: #07FA07; font-size: 16px; margin: 20px 0;")
+        else :
+            profit_label.setStyleSheet("color: #07FA07; font-size: 16px; margin: 20px 0px;")
+        parent_layout.addWidget(profit_label)
+
+        # Add a white line under the title
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
+        line.setFrameShadow(QFrame.Sunken)
+        line.setStyleSheet("QFrame { border: 2px solid #C1DACA; }")
+        line.setFixedHeight(2) 
+        line.setFixedWidth(480)  # Adjust width to match title
+        parent_layout.addWidget(line)
+
+        description = QLabel("auto take profit is set automatically of figure bellow on top of order price if this function\nhas been connected together with flash order:")
+        description.setStyleSheet(f"color: {color}; font-size: 10px; margin: 20px 0;")
+        parent_layout.addWidget(description)
+
+
     def create_lot_buttons(self, parent_layout, side, color):
         # Lot size section
-        lot_label = QLabel("Buy with auto take profit" if side == "long" else "Sell with auto take profit")
-        lot_label.setStyleSheet("color: white; font-size: 12px; margin: 5px 0;")
+        lot_label = QLabel("Buy Market Price" if side == "long" else "Sell Market Price")
+        if side == "long":
+            lot_label.setStyleSheet("color: #07FA07; font-size: 16px; margin: 20px 0;")
+        else:
+            lot_label.setStyleSheet("color: #07FA07; font-size: 16px; margin: 20px 65px;")
+
         parent_layout.addWidget(lot_label)
         
+        # Add a white line under the title
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
+        line.setFrameShadow(QFrame.Sunken)
+        line.setStyleSheet("QFrame { border: 2px solid #C1DACA; }")
+        line.setFixedHeight(2) 
+
         # First row of lot buttons (0.1, 0.2, 0.3, 0.5)
         lot_row1 = QHBoxLayout()
         lot_values1 = ["0.1", "0.2", "0.3", "0.5"]
+        line.setFixedWidth(480)  # Adjust width to match title
+        parent_layout.addWidget(line)
         
         for value in lot_values1:
-            btn = self.create_lot_button(value, color)
+            if side == "long":
+                btn = AngledButton.AngledTextButton(f"{value}\nETH", "BUY", color)
+            else:
+                btn = AngledButton.AngledTextButton(f"{value}\nETH", "SELL", color)
+            #btn = self.create_lot_button(value, color)
             lot_row1.addWidget(btn)
-        
+
+        lot_row1.addStretch()
         parent_layout.addLayout(lot_row1)
         
         # Second row of lot buttons (1, 2, 3, 5)
@@ -382,9 +445,14 @@ class FlashTraderMain(QMainWindow):
         lot_values2 = ["1", "2", "3", "5"]
         
         for value in lot_values2:
-            btn = self.create_lot_button(value, color)
+            if side == "long":
+                btn = AngledButton.AngledTextButton(f"{value}\nETH", "BUY", color)
+            else:
+                btn = AngledButton.AngledTextButton(f"{value}\nETH", "SELL", color)
+            #btn = self.create_lot_button(value, color)
             lot_row2.addWidget(btn)
         
+        lot_row2.addStretch()
         parent_layout.addLayout(lot_row2)
         
         # Third row of lot buttons (10, 20, 30, 50)
@@ -392,23 +460,28 @@ class FlashTraderMain(QMainWindow):
         lot_values3 = ["10", "20", "30", "50"]
         
         for value in lot_values3:
-            btn = self.create_lot_button(value, color)
+            if side == "long":
+                btn = AngledButton.AngledTextButton(f"{value}\nETH", "BUY", color)
+            else:
+                btn = AngledButton.AngledTextButton(f"{value}\nETH", "SELL", color)
+            #btn = self.create_lot_button(value, color)
             lot_row3.addWidget(btn)
         
+        lot_row3.addStretch()
         parent_layout.addLayout(lot_row3)
         
     def create_lot_button(self, value, color):
-        btn = QPushButton(f"{value}\nETH")
+        btn = AngledButton.AngledTextButton(f"{value}\nETH", "BUY", color)
+        return btn
+        btn.setMinimumWidth(100)
         btn.setStyleSheet(f"""
             QPushButton {{
                 background-color: {color};
-                color: white;
-                border: 1px solid #666;
+                color: #333333;
                 border-radius: 3px;
-                padding: 8px;
-                font-size: 10px;
-                font-weight: bold;
-                min-height: 40px;
+                padding: 10px;
+                margin: 20px 20px 0px 0px;
+                font-size: 15px;
             }}
             QPushButton:hover {{
                 background-color: {self.lighten_color(color)};
