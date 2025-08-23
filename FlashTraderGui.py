@@ -229,6 +229,22 @@ class FlashTraderMain(QMainWindow):
         # auto take profit
         self.create_profit_buttons(long_sub_layout, "long", "#E6E6E6")
 
+        # Auto Trailing Stop loss
+        trailing_frame = QFrame()
+        trailing_frame.setStyleSheet("""
+              QFrame {
+                background-color: #029834;
+                border: none;
+                border-radius: 0px;
+            }             
+        """)
+        trailing_layout = QVBoxLayout(trailing_frame)
+        trailing_layout.setContentsMargins(40, 0, 40, 10)
+        long_layout.addWidget(trailing_frame)
+
+        # trailing stop loss section
+        self.create_trailing_stop_section(trailing_layout, "long", "#4CAF50")
+
         # Risk management section
         #self.create_risk_section(long_layout, "long", "#4CAF50")
         
@@ -294,6 +310,22 @@ class FlashTraderMain(QMainWindow):
         # auto take profit buttons
         self.create_profit_buttons(short_sub_layout, "short", "#E6E6E6")
 
+         # Auto Trailing Stop loss
+        trailing_frame = QFrame()
+        trailing_frame.setStyleSheet("""
+              QFrame {
+                background-color: #FE0000;
+                border: none;
+                border-radius: 0px;
+            }             
+        """)
+        trailing_layout = QVBoxLayout(trailing_frame)
+        trailing_layout.setContentsMargins(40, 0, 40, 10)
+        short_layout.addWidget(trailing_frame)
+
+        # trailing stop loss section
+        self.create_trailing_stop_section(trailing_layout, "short", "#4CAF50")
+        
         # Risk management section
         #self.create_risk_section(short_layout, "short", "#f44336")
         
@@ -398,13 +430,53 @@ class FlashTraderMain(QMainWindow):
         line.setFrameShadow(QFrame.Sunken)
         line.setStyleSheet("QFrame { border: 2px solid #C1DACA; }")
         line.setFixedHeight(2) 
-        line.setFixedWidth(480)  # Adjust width to match title
+        line.setFixedWidth(407)  # Adjust width to match title
         parent_layout.addWidget(line)
 
         description = QLabel("auto take profit is set automatically of figure bellow on top of order price if this function\nhas been connected together with flash order:")
         description.setStyleSheet(f"color: {color}; font-size: 10px; margin: 20px 0;")
         parent_layout.addWidget(description)
 
+         # First row of lot buttons (0.1, 0.2, 0.3, 0.5)
+        lot_row1 = QHBoxLayout()
+        lot_values1 = ["5", "10", "12", "15", "17", "20"]
+        
+        for value in lot_values1:
+            btn = self.create_lot_button(value, color)
+            #btn = self.create_lot_button(value, color)
+            lot_row1.addWidget(btn)
+
+        lot_row1.addStretch()
+        parent_layout.addLayout(lot_row1)
+        
+        # Second row of lot buttons (1, 2, 3, 5)
+        lot_row2 = QHBoxLayout()
+        lot_values2 = ["25", "30", "35", "40", "45", "50"]
+
+        for value in lot_values2:
+            btn = self.create_lot_button(value, color)
+            lot_row2.addWidget(btn)
+        
+        lot_row2.addStretch()
+        parent_layout.addLayout(lot_row2)
+
+    def create_trailing_stop_section(self, parent_layout, side, color):
+        # Trailing stop loss section
+        trailing_label = QLabel("Auto Trailing Stop Loss")
+        trailing_label.setStyleSheet("color: #07FA07; font-size: 16px; margin: 5px 0;")
+        parent_layout.addWidget(trailing_label)
+
+        # Add a white line under the title
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
+        line.setFrameShadow(QFrame.Sunken)
+        line.setStyleSheet("QFrame { border: 2px solid #C1DACA; }")
+        line.setFixedHeight(2) 
+        line.setMinimumWidth(407)
+        parent_layout.addWidget(line)
+
+        # Ammount section
+        
 
     def create_lot_buttons(self, parent_layout, side, color):
         # Lot size section
@@ -426,7 +498,7 @@ class FlashTraderMain(QMainWindow):
         # First row of lot buttons (0.1, 0.2, 0.3, 0.5)
         lot_row1 = QHBoxLayout()
         lot_values1 = ["0.1", "0.2", "0.3", "0.5"]
-        line.setFixedWidth(480)  # Adjust width to match title
+        line.setFixedWidth(407)  # Adjust width to match title
         parent_layout.addWidget(line)
         
         for value in lot_values1:
@@ -471,17 +543,17 @@ class FlashTraderMain(QMainWindow):
         parent_layout.addLayout(lot_row3)
         
     def create_lot_button(self, value, color):
-        btn = AngledButton.AngledTextButton(f"{value}\nETH", "BUY", color)
-        return btn
-        btn.setMinimumWidth(100)
+        btn = QPushButton(value)
+        btn.setMinimumSize(62,62)
         btn.setStyleSheet(f"""
             QPushButton {{
                 background-color: {color};
                 color: #333333;
                 border-radius: 3px;
                 padding: 10px;
-                margin: 20px 20px 0px 0px;
+                margin: 2px 2px 0px 0px;
                 font-size: 15px;
+                font-weight: bold;
             }}
             QPushButton:hover {{
                 background-color: {self.lighten_color(color)};

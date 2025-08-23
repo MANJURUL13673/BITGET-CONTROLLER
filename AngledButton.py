@@ -11,8 +11,8 @@ class AngledTextButton(QPushButton):
         self.color = color
         
         # Set button size and basic style
-        self.setMinimumWidth(120)
-        self.setMinimumHeight(80)
+        self.setMinimumWidth(100)
+        self.setMinimumHeight(60)
         
         # Basic button styling (the angled text will be drawn in paintEvent)
         self.setStyleSheet(f"""
@@ -21,7 +21,7 @@ class AngledTextButton(QPushButton):
                 color: #333333;
                 border-radius: 3px;
                 padding: 0px;
-                margin: 20px 20px 0px 0px;
+                margin: 15px 15px 0px 0px;
                 border: none;
             }}
             QPushButton:hover {{
@@ -48,14 +48,14 @@ class AngledTextButton(QPushButton):
         
         # === Draw Main Text (0.1\nETH) ===
         main_font = QFont()
-        main_font.setPointSize(10)
+        main_font.setPointSize(8)
         main_font.setBold(True)
         painter.setFont(main_font)
         painter.setPen(Qt.black)
         
         # Draw main text in upper center area
         #main_rect = rect.adjusted(10, 5, -10, -25)  # Leave space at bottom for angled text
-        main_rect = rect.adjusted(0, 20, -20, 0)  # Adjusted to fit main text
+        main_rect = rect.adjusted(0, 10, -20, 0)  # Adjusted to fit main text
         painter.drawText(main_rect, Qt.AlignCenter, self.main_text)
         
         # === Draw Angled Text (BUY) ===
@@ -74,7 +74,7 @@ class AngledTextButton(QPushButton):
         
         # Position for angled text (bottom-right corner, INSIDE button)
         # Use diagonal space calculation to ensure text fits inside
-        margin = 20  # Small margin from edges
+        margin = 15  # Small margin from edges
         x_pos = rect.width() - diagonal_space//2 - margin
         y_pos = rect.height() - diagonal_space//2
         
