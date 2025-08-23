@@ -186,7 +186,7 @@ class FlashTraderMain(QMainWindow):
         """)
         
         long_layout = QVBoxLayout(long_frame)
-        long_layout.setContentsMargins(20, 20, 20, 20)
+        long_layout.setContentsMargins(20, 5, 20, 20)
 
         # Title
         title = QLabel("OPEN LONG")
@@ -245,6 +245,13 @@ class FlashTraderMain(QMainWindow):
         # trailing stop loss section
         self.create_trailing_stop_section(trailing_layout, "long", "#4CAF50")
 
+        # Flash close button for long position
+        flashCloseButton = QPushButton("FLASH Close of Long POSITION")
+        flashCloseButton.setStyleSheet("background-color: #000000; color: #07FA07; font-size: 16px; padding: 10px; border: none;")
+        #flashCloseButton.clicked.connect(lambda: self.flash_close_position("long"))
+        
+        long_layout.addWidget(flashCloseButton, 0)
+
         # Risk management section
         #self.create_risk_section(long_layout, "long", "#4CAF50")
         
@@ -265,7 +272,7 @@ class FlashTraderMain(QMainWindow):
         """)
         
         short_layout = QVBoxLayout(short_frame)
-        short_layout.setContentsMargins(20, 20, 20, 20)
+        short_layout.setContentsMargins(20, 5, 20, 20)
         
         # Title
         title = QLabel("OPEN SHORT")
@@ -326,6 +333,12 @@ class FlashTraderMain(QMainWindow):
         # trailing stop loss section
         self.create_trailing_stop_section(trailing_layout, "short", "#4CAF50")
         
+        # Flash close button for long position
+        flashCloseButton = QPushButton("FLASH Close of Short POSITION")
+        flashCloseButton.setStyleSheet("background-color: #000000; color: #07FA07; font-size: 16px; padding: 10px; border: none;")
+        #flashCloseButton.clicked.connect(lambda: self.flash_close_position("long"))
+        
+        short_layout.addWidget(flashCloseButton, 0)
         # Risk management section
         #self.create_risk_section(short_layout, "short", "#f44336")
         
@@ -345,7 +358,7 @@ class FlashTraderMain(QMainWindow):
             }
         """)
         center_frame.setFixedWidth(250)
-        center_frame.setFixedHeight(150)
+        center_frame.setFixedHeight(120)
         
         center_layout = QVBoxLayout(center_frame)
         
@@ -419,9 +432,9 @@ class FlashTraderMain(QMainWindow):
         # Profit buttons section
         profit_label = QLabel("Buy with auto take profit" if side == "long" else "Sell with auto take profit")
         if side == "long":
-            profit_label.setStyleSheet("color: #07FA07; font-size: 16px; margin: 20px 0;")
+            profit_label.setStyleSheet("color: #07FA07; font-size: 16px; margin: 10px 0;")
         else :
-            profit_label.setStyleSheet("color: #07FA07; font-size: 16px; margin: 20px 0px;")
+            profit_label.setStyleSheet("color: #07FA07; font-size: 16px; margin: 10px 0px;")
         parent_layout.addWidget(profit_label)
 
         # Add a white line under the title
@@ -434,7 +447,7 @@ class FlashTraderMain(QMainWindow):
         parent_layout.addWidget(line)
 
         description = QLabel("auto take profit is set automatically of figure bellow on top of order price if this function\nhas been connected together with flash order:")
-        description.setStyleSheet(f"color: {color}; font-size: 10px; margin: 20px 0;")
+        description.setStyleSheet(f"color: {color}; font-size: 10px; margin: 5px 0;")
         parent_layout.addWidget(description)
 
          # First row of lot buttons (0.1, 0.2, 0.3, 0.5)
@@ -476,15 +489,135 @@ class FlashTraderMain(QMainWindow):
         parent_layout.addWidget(line)
 
         # Ammount section
+        layout1 = QHBoxLayout()
         
+        label = QLabel("Position Ammount")
+        label.setStyleSheet("color: black; font-size: 12px")
+        label.setAlignment(Qt.AlignVCenter)
+        layout1.addWidget(label)
+
+        label = QLabel("20\tETH")         
+        label.setStyleSheet("background-color: #E6E6E6; color: black; margin: 5 0 0 30; padding: 10; font-size: 16px; font-weight: bold;")
+        layout1.addWidget(label)
+
+        label = QLabel("calculated value")
+        label.setStyleSheet("color: black; margin: 0 0 0 30; font-size: 12px")
+        label.setAlignment(Qt.AlignVCenter)
+        layout1.addWidget(label)
+
+        label = QLabel("94560.00\tUSDT")
+        label.setStyleSheet("color: black; margin: 5 0 0 30; padding: 10; font-size: 16px; font-weight: bold;")
+        layout1.addWidget(label)
+
+        layout1.addStretch()
+        parent_layout.addLayout(layout1)
+
+        # Stop loss ammount of position section
+        layout2 = QHBoxLayout()
+
+        label = QLabel("Stop loss ammount of position")
+        label.setStyleSheet("color: black; font-size: 12px")
+        label.setAlignment(Qt.AlignVCenter)
+        layout2.addWidget(label)
+
+        # line and button drawing
+        stacked = QStackedLayout()
+        stacked.setStackingMode(QStackedLayout.StackingMode.StackAll)
+        
+        #line
+        line_container = QWidget()
+        line_container.setFixedSize(500, 34)
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
+        line.setFrameShadow(QFrame.Sunken)
+        line.setStyleSheet("QFrame { border: 4px solid #E6E6E6; }")
+        line.setFixedHeight(4) 
+        line.setFixedWidth(390)  # Adjust width to match title
+
+        line.setParent(line_container)
+        line.move(60, 15)  # Position the line within the container
+        stacked.addWidget(line_container)
+
+        label_container = QWidget()
+        label_container.setFixedSize(500, 34)
+
+        labels = ["", "25%", "50%", "75%", "100%"]
+
+        for i, text in enumerate(labels):
+            self.create_sub_label(label_container, text, (60 + i * 90))
+            stacked.addWidget(label_container)
+
+        layout2.addLayout(stacked)
+        layout2.addStretch()
+        parent_layout.addLayout(layout2)
+        
+        # Trailing stop loss
+        layout3 = QHBoxLayout()
+        label = QLabel("Stop loss ammount of position")
+        label.setStyleSheet("color: black; font-size: 12px")
+        label.setAlignment(Qt.AlignVCenter)
+        layout3.addWidget(label)
+
+        # Trailing stop loss button
+        trailing_values = ["5", "7", "10", "15", "20", "30"]
+        
+        for value in trailing_values:
+            btn = self.create_lot_button(value, "#E6E6E6")
+            #btn = self.create_lot_button(value, color)
+            layout3.addWidget(btn)
+
+        label = QLabel("bellow market price")
+        label.setStyleSheet("color: black; font-size: 12px; margin: 0 0 0 30;")
+        label.setAlignment(Qt.AlignVCenter)
+        layout3.addWidget(label)
+
+        layout3.addStretch()
+        parent_layout.addLayout(layout3)
+
+        # line
+        # Add a white line under the title
+        sub_layout = QHBoxLayout()
+        sub_layout.setSpacing(0)
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
+        line.setFrameShadow(QFrame.Sunken)
+        line.setStyleSheet("QFrame { border: 2px solid #C1DACA; }")
+        line.setFixedHeight(2) 
+        line.setMinimumWidth(625)
+        sub_layout.addWidget(line)
+
+        # Initiate button
+        btn = QPushButton("Initiate")
+        if side == "long":
+            btn.setStyleSheet("background-color: #006634; color: #029834; margin: 35 0 0 0; font-size: 16px; padding: 10px 20px; border: none; border-radius: 5px;")
+        else:
+            btn.setStyleSheet("background-color: #9C0403; color: #FE0000; margin: 35 0 0 0; font-size: 16px; padding: 10px 20px; border: none; border-radius: 5px;")
+        #btn.clicked.connect(self.initiate_trade)
+        sub_layout.addWidget(btn)
+        parent_layout.addLayout(sub_layout)
+
+    def create_sub_label(self, parent_layout, text, position):
+        label = QLabel(text)
+        label.setFixedSize(34, 34)
+        label.setStyleSheet("""
+            QLabel {
+                background-color: #E6E6E6;  /* Make it red to be very visible */
+                font-size: 12px;
+                border-radius: 17px;
+            }
+        """)
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        label.setParent(parent_layout)
+        label.move(position, 0)
 
     def create_lot_buttons(self, parent_layout, side, color):
         # Lot size section
         lot_label = QLabel("Buy Market Price" if side == "long" else "Sell Market Price")
         if side == "long":
-            lot_label.setStyleSheet("color: #07FA07; font-size: 16px; margin: 20px 0;")
+            lot_label.setStyleSheet("color: #07FA07; font-size: 16px; margin: 10px 0;")
         else:
-            lot_label.setStyleSheet("color: #07FA07; font-size: 16px; margin: 20px 65px;")
+            lot_label.setStyleSheet("color: #07FA07; font-size: 16px; margin: 10px 65px;")
 
         parent_layout.addWidget(lot_label)
         
@@ -494,12 +627,12 @@ class FlashTraderMain(QMainWindow):
         line.setFrameShadow(QFrame.Sunken)
         line.setStyleSheet("QFrame { border: 2px solid #C1DACA; }")
         line.setFixedHeight(2) 
+        line.setFixedWidth(407)  # Adjust width to match title
+        parent_layout.addWidget(line)
 
         # First row of lot buttons (0.1, 0.2, 0.3, 0.5)
         lot_row1 = QHBoxLayout()
         lot_values1 = ["0.1", "0.2", "0.3", "0.5"]
-        line.setFixedWidth(407)  # Adjust width to match title
-        parent_layout.addWidget(line)
         
         for value in lot_values1:
             if side == "long":
