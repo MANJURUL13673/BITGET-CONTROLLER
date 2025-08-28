@@ -2,10 +2,18 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import AngledButton
+from FlashTraderCode import FlashTraderCode
 
 class FlashTraderMain(QMainWindow):
+    # buttons information
+    FlashTraderHwnd = None
+    buttons = {}
+    labels = {}
+    combo_box = None
+
     def __init__(self):
         super().__init__()
+        self.FlashTraderHwnd = FlashTraderCode(gui = self)
         self.initUI()
     
     def initUI(self):
@@ -31,26 +39,62 @@ class FlashTraderMain(QMainWindow):
 
         # Overlay layout
         overlay_widget = QWidget()
+        overlay_widget.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         overlay_layout = QVBoxLayout(overlay_widget)
         overlay_layout.setContentsMargins(0, 0, 0, 0)
         overlay_layout.setAlignment(Qt.AlignTop | Qt.AlignCenter)
+
+        # create a center panel
         self.create_center_panel(overlay_layout)
 
         # left and right panel layout
         widget = QWidget()
         trading_layout = QHBoxLayout(widget)
         trading_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.addLayout(stacked)
 
         # Create trading panels
         self.create_long_panel(trading_layout)
         self.create_short_panel(trading_layout)
 
         # setup the stacked to visualize
-        stacked.addWidget(overlay_widget)
         stacked.addWidget(widget)
+        stacked.addWidget(overlay_widget)
+        main_layout.addLayout(stacked)
         # Status bars at bottom
         #self.create_status_bars(main_layout)
+
+        # Prepare the slots for buttons
+        self.buttons["Connect User API"].clicked.connect(self.FlashTraderHwnd.connectBitget)
+        self.buttons["Disconnect User and System API"].clicked.connect(self.FlashTraderHwnd.disconnectBitget)
+        self.combo_box.currentTextChanged.connect(self.FlashTraderHwnd.onCoinChanged)
+
+        # long profit button connection
+        self.buttons["5long"].clicked.connect(self.FlashTraderHwnd.onProfitLong5)
+        self.buttons["10long"].clicked.connect(self.FlashTraderHwnd.onProfitLong10)
+        self.buttons["12long"].clicked.connect(self.FlashTraderHwnd.onProfitLong12)
+        self.buttons["15long"].clicked.connect(self.FlashTraderHwnd.onProfitLong15)
+        self.buttons["17long"].clicked.connect(self.FlashTraderHwnd.onProfitLong17)
+        self.buttons["20long"].clicked.connect(self.FlashTraderHwnd.onProfitLong20)
+        self.buttons["25long"].clicked.connect(self.FlashTraderHwnd.onProfitLong25)
+        self.buttons["30long"].clicked.connect(self.FlashTraderHwnd.onProfitLong30)
+        self.buttons["35long"].clicked.connect(self.FlashTraderHwnd.onProfitLong35)
+        self.buttons["40long"].clicked.connect(self.FlashTraderHwnd.onProfitLong40)
+        self.buttons["45long"].clicked.connect(self.FlashTraderHwnd.onProfitLong45)
+        self.buttons["50long"].clicked.connect(self.FlashTraderHwnd.onProfitLong50)
+
+        # short profit button connection
+        self.buttons["5short"].clicked.connect(self.FlashTraderHwnd.onProfitShort5)
+        self.buttons["10short"].clicked.connect(self.FlashTraderHwnd.onProfitShort10)
+        self.buttons["12short"].clicked.connect(self.FlashTraderHwnd.onProfitShort12)
+        self.buttons["15short"].clicked.connect(self.FlashTraderHwnd.onProfitShort15)
+        self.buttons["17short"].clicked.connect(self.FlashTraderHwnd.onProfitShort17)
+        self.buttons["20short"].clicked.connect(self.FlashTraderHwnd.onProfitShort20)
+        self.buttons["25short"].clicked.connect(self.FlashTraderHwnd.onProfitShort25)
+        self.buttons["30short"].clicked.connect(self.FlashTraderHwnd.onProfitShort30)
+        self.buttons["35short"].clicked.connect(self.FlashTraderHwnd.onProfitShort35)
+        self.buttons["40short"].clicked.connect(self.FlashTraderHwnd.onProfitShort40)
+        self.buttons["45short"].clicked.connect(self.FlashTraderHwnd.onProfitShort45)
+        self.buttons["50short"].clicked.connect(self.FlashTraderHwnd.onProfitShort50)
 
     def create_toolbar(self, parent_layout):
         toolbar_layout = QHBoxLayout()
@@ -76,7 +120,7 @@ class FlashTraderMain(QMainWindow):
             ("API strings tester", "#7c7c7c"),
         ]
 
-        buttons_sub_text = ("Test OK\nNext test in 59 sec")
+        buttons_sub_text = ("No\nConnection")
 
 
         right_button = ("Disconnect User and System API", "#7c7c7c")
@@ -117,11 +161,13 @@ class FlashTraderMain(QMainWindow):
                 label2 = QLabel(buttons_sub_text)
                 label2.setAlignment(Qt.AlignLeft)
                 label2.setStyleSheet("font-weight: normal; font-size: 10px; color: #00FF00;")
+                self.labels[text] = label2
     
             button_layout.addWidget(label1)
             if text != "Connect User API":
                 button_layout.addWidget(label2)
             toolbar_layout.addWidget(btn, 0, Qt.AlignBottom)
+            self.buttons[text] = btn
             #btn.setFixedSize(container.sizeHint())
 
         # Add a stretch to push following items to the right
@@ -147,6 +193,7 @@ class FlashTraderMain(QMainWindow):
             }}
         """)
         toolbar_layout.addWidget(btn, 0, Qt.AlignBottom)
+        self.buttons[text] = btn
         #toolbar_layout.setContentsMargins(0, 10, 0, 0)
         parent_layout.addLayout(toolbar_layout)
 
@@ -361,7 +408,39 @@ class FlashTraderMain(QMainWindow):
         center_frame.setFixedHeight(120)
         
         center_layout = QVBoxLayout(center_frame)
-        
+        combo_box = QComboBox()
+        combo_box.addItems(["ETH / USDT", "BTC / USDT", "AAVE / USDT"])
+        # Apply bold styling
+        combo_box.setStyleSheet("QComboBox { font-weight: bold; }")
+        center_layout.addWidget(combo_box)
+        self.combo_box = combo_box
+
+        label = QLabel("ETH / USDT")
+        label.setAlignment(Qt.AlignCenter)
+        label.setStyleSheet("""
+            QLabel {
+                color: #FFFFFF;
+                font-size: 24px;
+                font-weight: bold;
+                border: none;
+            }
+        """)
+        # 11F011
+        center_layout.addWidget(label)
+        self.labels["Symbol"] = label
+
+        label = QLabel("0")
+        label.setAlignment(Qt.AlignCenter)
+        label.setStyleSheet("""
+            QLabel {
+                color: #11F011;
+                font-size: 20px;
+                border: none;
+            }
+        """)
+        # 11F011
+        center_layout.addWidget(label)
+        self.labels["Current Price"] = label
         # Symbol selector
         #symbol_label = QLabel("ETH/USDT")
         #symbol_label.setAlignment(Qt.AlignCenter)
@@ -458,17 +537,19 @@ class FlashTraderMain(QMainWindow):
             btn = self.create_lot_button(value, color)
             #btn = self.create_lot_button(value, color)
             lot_row1.addWidget(btn)
+            self.buttons[value+side] = btn # map the button
 
         lot_row1.addStretch()
         parent_layout.addLayout(lot_row1)
         
         # Second row of lot buttons (1, 2, 3, 5)
         lot_row2 = QHBoxLayout()
-        lot_values2 = ["25", "30", "35", "40", "45", "50"]
+        lot_values2 = ["25", "30", "35", "40", "45", "50"] 
 
         for value in lot_values2:
             btn = self.create_lot_button(value, color)
             lot_row2.addWidget(btn)
+            self.buttons[value+side] = btn # map the button
         
         lot_row2.addStretch()
         parent_layout.addLayout(lot_row2)
@@ -641,6 +722,7 @@ class FlashTraderMain(QMainWindow):
                 btn = AngledButton.AngledTextButton(f"{value}\nETH", "SELL", color)
             #btn = self.create_lot_button(value, color)
             lot_row1.addWidget(btn)
+            self.buttons[value+"ETH"+side] = btn # map the button
 
         lot_row1.addStretch()
         parent_layout.addLayout(lot_row1)
@@ -656,6 +738,7 @@ class FlashTraderMain(QMainWindow):
                 btn = AngledButton.AngledTextButton(f"{value}\nETH", "SELL", color)
             #btn = self.create_lot_button(value, color)
             lot_row2.addWidget(btn)
+            self.buttons[value+"ETH"+side] = btn
         
         lot_row2.addStretch()
         parent_layout.addLayout(lot_row2)
@@ -671,7 +754,8 @@ class FlashTraderMain(QMainWindow):
                 btn = AngledButton.AngledTextButton(f"{value}\nETH", "SELL", color)
             #btn = self.create_lot_button(value, color)
             lot_row3.addWidget(btn)
-        
+            self.buttons[value+"ETH"+side] = btn
+
         lot_row3.addStretch()
         parent_layout.addLayout(lot_row3)
         
@@ -691,11 +775,7 @@ class FlashTraderMain(QMainWindow):
             QPushButton:hover {{
                 background-color: {self.lighten_color(color)};
             }}
-            QPushButton:pressed {{
-                background-color: {self.darken_color(color)};
-            }}
         """)
-        btn.clicked.connect(lambda checked, v=value: self.on_lot_clicked(v))
         return btn
         
     def create_risk_section(self, parent_layout, side, color):

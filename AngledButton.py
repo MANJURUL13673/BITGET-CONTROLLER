@@ -126,5 +126,5 @@ class AngledTextButton(QPushButton):
 # Your create_lot_button method
 def create_lot_button(self, value, color):
     btn = AngledTextButton(f"{value}\nETH", "BUY", color)
-    btn.clicked.connect(lambda checked, v=value: self.on_lot_clicked(v))
+    #btn.clicked.connect(lambda checked, v=value: self.on_lot_clicked(v))
     return btn
