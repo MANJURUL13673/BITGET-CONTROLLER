@@ -13,7 +13,7 @@ class Client(object):
         self.use_server_time = use_server_time
         self.first = first
 
-    def _request(self, method, request_path, params, cursor=False):
+    def _request(self, method, request_path, params, cursor=False, additional_headers=None):
         if method == c.GET:
             request_path = request_path + utils.parse_params_to_str(params)
         # url
@@ -32,6 +32,9 @@ class Client(object):
         if c.SIGN_TYPE == c.RSA:
             sign = utils.signByRSA(utils.pre_hash(timestamp, method, request_path, str(body)), self.API_SECRET_KEY)
         header = utils.get_header(self.API_KEY, sign, timestamp, self.PASSPHRASE)
+
+        if additional_headers:
+            header.update(additional_headers)
 
         if self.first:
             #print("url:", url)
@@ -80,7 +83,8 @@ class Client(object):
         return self._request(method, request_path, {})
 
     def _request_with_params(self, method, request_path, params, cursor=False):
-        return self._request(method, request_path, params, cursor)
+        headers = {"paptrading": "1"}
+        return self._request(method, request_path, params, cursor, headers)
 
     def _get_timestamp(self):
         url = c.API_URL + c.SERVER_TIMESTAMP_URL

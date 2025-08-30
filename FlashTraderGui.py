@@ -10,6 +10,7 @@ class FlashTraderMain(QMainWindow):
     buttons = {}
     labels = {}
     combo_box = None
+    overlay_layout = None
 
     def __init__(self):
         super().__init__()
@@ -39,13 +40,13 @@ class FlashTraderMain(QMainWindow):
 
         # Overlay layout
         overlay_widget = QWidget()
-        overlay_widget.setAttribute(Qt.WA_TransparentForMouseEvents, True)
-        overlay_layout = QVBoxLayout(overlay_widget)
-        overlay_layout.setContentsMargins(0, 0, 0, 0)
-        overlay_layout.setAlignment(Qt.AlignTop | Qt.AlignCenter)
+        self.overlay_layout = QVBoxLayout(overlay_widget)
+        self.overlay_layout.setContentsMargins(725, 0, 0, 0)
+        self.overlay_layout.setAlignment(Qt.AlignTop | Qt.AlignCenter)
+        self.overlay_layout.setSizeConstraint(QVBoxLayout.SetFixedSize)
 
         # create a center panel
-        self.create_center_panel(overlay_layout)
+        self.create_center_panel(self.overlay_layout)
 
         # left and right panel layout
         widget = QWidget()
@@ -95,6 +96,40 @@ class FlashTraderMain(QMainWindow):
         self.buttons["40short"].clicked.connect(self.FlashTraderHwnd.onProfitShort40)
         self.buttons["45short"].clicked.connect(self.FlashTraderHwnd.onProfitShort45)
         self.buttons["50short"].clicked.connect(self.FlashTraderHwnd.onProfitShort50)
+
+        # long order button
+        self.buttons["0.1ETHlong"].clicked.connect(self.FlashTraderHwnd.onOrder0_1Long)
+        self.buttons["0.2ETHlong"].clicked.connect(self.FlashTraderHwnd.onOrder0_2Long)
+        self.buttons["0.3ETHlong"].clicked.connect(self.FlashTraderHwnd.onOrder0_3Long)
+        self.buttons["0.5ETHlong"].clicked.connect(self.FlashTraderHwnd.onOrder0_5Long)
+        self.buttons["1ETHlong"].clicked.connect(self.FlashTraderHwnd.onOrder1Long)
+        self.buttons["2ETHlong"].clicked.connect(self.FlashTraderHwnd.onOrder2Long)
+        self.buttons["3ETHlong"].clicked.connect(self.FlashTraderHwnd.onOrder3Long)
+        self.buttons["5ETHlong"].clicked.connect(self.FlashTraderHwnd.onOrder5Long)
+        self.buttons["10ETHlong"].clicked.connect(self.FlashTraderHwnd.onOrder10Long)
+        self.buttons["20ETHlong"].clicked.connect(self.FlashTraderHwnd.onOrder20Long)
+        self.buttons["30ETHlong"].clicked.connect(self.FlashTraderHwnd.onOrder30Long)
+        self.buttons["50ETHlong"].clicked.connect(self.FlashTraderHwnd.onOrder50Long)
+
+        # short order button
+        self.buttons["0.1ETHshort"].clicked.connect(self.FlashTraderHwnd.onOrder0_1Short)
+        self.buttons["0.2ETHshort"].clicked.connect(self.FlashTraderHwnd.onOrder0_2Short)
+        self.buttons["0.3ETHshort"].clicked.connect(self.FlashTraderHwnd.onOrder0_3Short)
+        self.buttons["0.5ETHshort"].clicked.connect(self.FlashTraderHwnd.onOrder0_5Short)
+        self.buttons["1ETHshort"].clicked.connect(self.FlashTraderHwnd.onOrder1Short)
+        self.buttons["2ETHshort"].clicked.connect(self.FlashTraderHwnd.onOrder2Short)
+        self.buttons["3ETHshort"].clicked.connect(self.FlashTraderHwnd.onOrder3Short)
+        self.buttons["5ETHshort"].clicked.connect(self.FlashTraderHwnd.onOrder5Short)
+        self.buttons["10ETHshort"].clicked.connect(self.FlashTraderHwnd.onOrder10Short)
+        self.buttons["20ETHshort"].clicked.connect(self.FlashTraderHwnd.onOrder20Short)
+        self.buttons["30ETHshort"].clicked.connect(self.FlashTraderHwnd.onOrder30Short)
+        self.buttons["50ETHshort"].clicked.connect(self.FlashTraderHwnd.onOrder50Short)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+
+        pos = (event.size().width() / 2) - 130
+        self.overlay_layout.setContentsMargins(pos, 0, 0, 0)
 
     def create_toolbar(self, parent_layout):
         toolbar_layout = QHBoxLayout()

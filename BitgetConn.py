@@ -26,7 +26,7 @@ class BitgetConn:
     def Connect(self):
         try:
             self.client = bitgetApi.BitgetApi(self.api_key, self.api_secret, self.passphrase)
-            userInfo = self.client.get("/api/spot/v1/account/getInfo", {})
+            userInfo = self.client.get("/api/v2/spot/account/info", {})
             print("Connected to Bitget API.")
             return True
         except BitgetAPIException as e:
@@ -39,13 +39,27 @@ class BitgetConn:
     # frequent test of connection
     def APITest(self, params):
         try:
-            toUSDT = self.client.get("/api/mix/v1/market/ticker", params)
+            #symbols = self.client.get("/api/v2/mix/market/symbols", {})
+            #params = {"symbol": "ETHUSDT", "productType": "USDT-FUTURES"}
+            toUSDT = self.client.get("/api/v2/mix/market/ticker", params)
             #toUSDT = self.client.get("/fapi/v1/ticker/24hr", params)
-            return True, toUSDT["data"]["last"]
+            return True, toUSDT["data"][0]["lastPr"]
         except BitgetAPIException as e:
             print(f"Bitget API error occurred: {e}")
             return False, 0
         except Exception as e:
             print(f"Failed to connect to Bitget API: {e}")
             return False, 0
-
+    
+    # Buy/Sell instantly with/without auto profit
+    def PlaceOrder(self, params):
+        try:
+            order = self.client.post("/api/v2/mix/order/place-order", params)
+            print(order)
+            return True, order
+        except BitgetAPIException as e:
+            print(f"Bitget API error occurred: {e}")
+            return False, str(e)
+        except Exception as e:
+            print(f"Failed to place buy order: {e}")
+            return False, str(e)

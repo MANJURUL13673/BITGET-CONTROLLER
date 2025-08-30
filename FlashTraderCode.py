@@ -14,12 +14,13 @@ class FlashTraderCode:
         self.timer = QTimer()
         self.timer.timeout.connect(self._perform_api_test)  # Thread for running API tests
         self.is_testing = False
-        self.last_status = None
+        self.last_status = False
         self.test_count = 0
         self.usdt_value = 0
         self.selectedLongBtn = None
         self.selectedShortBtn = None
-        self.param = {"symbol": "ETHUSDT_UMCBL"}
+        self.param = {"symbol": "ETHUSDT", "productType": "USDT-FUTURES"}
+        
 
     # Event for connect button
     def connectBitget(self):
@@ -95,7 +96,7 @@ class FlashTraderCode:
 
     def onCoinChanged(self, text):
         self.gui.labels["Symbol"].setText(f"{text}")
-        self.param["symbol"] = text.replace(" / ", "") + "_UMCBL"
+        self.param["symbol"] = text.replace(" / ", "")
         print(self.param["symbol"])
 
     def changeBtnStyleSelected(self, buttonName, side):
@@ -356,3 +357,218 @@ class FlashTraderCode:
             return
 
         self.changeBtnStyleSelected("50short", "short")
+
+    def makeParams(self, side, size, stopSurplusPrice):
+        params = {}
+        size = 0.01
+        if stopSurplusPrice == "":
+            params = {
+                "symbol": "ETHUSDT",
+                "productType": "USDT-FUTURES",
+                "marginMode": "crossed",
+                "marginCoin": "USDT",
+                "side": side,
+                "tradeSide": "open",
+                "orderType": "market",
+                "size": str(size),
+                "force": "ioc"
+            }
+
+        else:
+            last_status, usdt_value = self.BitgetHwnd.APITest({"symbol": "ETHUSDT_UMCBL"})
+            
+            params = {
+                "symbol": "ETHUSDT",
+                "productType": "USDT-FUTURES",
+                "marginMode": "crossed",
+                "marginCoin": "USDT",
+                "side": side,
+                "tradeSide": "open",
+                "orderType": "market",
+                "size": str(size),
+                "force": "ioc",
+                # take profit settings
+                "stopSurplusPrice": f"{float(usdt_value) * (1 + float(stopSurplusPrice) / 100.0):.2f}",
+                "stopSurplusType": "market"
+            }
+
+        return params
+
+    def getSurplusPriceLong(self):
+        if self.selectedLongBtn is None:
+            return ""
+        return int(self.selectedLongBtn.replace("long", ""))
+
+    def getSurplusPriceShort(self):
+        if self.selectedShortBtn is None:
+            return ""
+        return int(self.selectedShortBtn.replace("short", ""))
+
+    # order and sell function
+    def onOrder0_1Long(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceLong()
+        params = self.makeParams("buy",0.1, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+    
+    def onOrder0_1Short(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceShort()
+        params = self.makeParams("sell",0.1, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder0_2Long(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceLong()
+        params = self.makeParams("buy",0.2, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder0_2Short(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceShort()
+        params = self.makeParams("sell",0.2, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder0_3Long(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceLong()
+        params = self.makeParams("buy",0.3, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder0_3Short(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceShort()
+        params = self.makeParams("sell",0.3, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder0_5Long(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceLong()
+        params = self.makeParams("buy",0.5, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder0_5Short(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceShort()
+        params = self.makeParams("sell",0.5, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder1Long(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceLong()
+        params = self.makeParams("buy",1, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder1Short(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceShort()
+        params = self.makeParams("sell",1, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder2Long(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceLong()
+        params = self.makeParams("buy",2, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder2Short(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceShort()
+        params = self.makeParams("sell",2, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder3Long(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceLong()
+        params = self.makeParams("buy",3, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder3Short(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceShort()
+        params = self.makeParams("sell",3, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder5Long(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceLong()
+        params = self.makeParams("buy",5, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder5Short(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceShort()
+        params = self.makeParams("sell",5, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder10Long(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceLong()
+        params = self.makeParams("buy",10, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder10Short(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceShort()
+        params = self.makeParams("sell",10, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder20Long(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceLong()
+        params = self.makeParams("buy",20, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder20Short(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceShort()
+        params = self.makeParams("sell",20, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder30Long(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceLong()
+        params = self.makeParams("buy",30, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder30Short(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceShort()
+        params = self.makeParams("sell",30, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder50Long(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceLong()
+        params = self.makeParams("buy",50, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
+
+    def onOrder50Short(self):
+        if self.last_status == False:
+            return
+        surplusPrice = self.getSurplusPriceShort()
+        params = self.makeParams("sell",50, surplusPrice)
+        self.BitgetHwnd.PlaceOrder(params)
