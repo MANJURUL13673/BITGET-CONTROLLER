@@ -26,18 +26,18 @@ class FlashTraderCode:
     def connectBitget(self):
         success = self.BitgetHwnd.Connect()
         if success:
-            print("Bitget API connected successfully.")
+            #print("Bitget API connected successfully.")
             self.last_status = True
             self.start_testing()
         else:
             self.last_status = False
-            print("Bitget API connection failed.")
+            #print("Bitget API connection failed.")
 
     # Event for disconnect button
     def disconnectBitget(self):
         self.stop_testing()
         self.last_status = False
-        print("Bitget API disconnected.")
+        #print("Bitget API disconnected.")
 
         # Change the label
         self.gui.labels["API tester"].setStyleSheet("font-weight: normal; font-size: 10px; color: #00FF00;")
@@ -49,7 +49,7 @@ class FlashTraderCode:
         """Start the API connection testing."""
         self.is_testing = True
         self.timer.start(1000)
-        print("Started API connection testing.")
+        #print("Started API connection testing.")
 
     # Stop the API Testing
     def stop_testing(self):
@@ -57,7 +57,7 @@ class FlashTraderCode:
         self.is_testing = False
         self.test_count = 0
         self.timer.stop()
-        print("Stopped API connection testing.")
+        #print("Stopped API connection testing.")
     
     # API Testing thread
     def APIThreadTest(self):
@@ -360,7 +360,6 @@ class FlashTraderCode:
 
     def makeParams(self, side, size, stopSurplusPrice):
         params = {}
-        size = 0.01
         if stopSurplusPrice == "":
             params = {
                 "symbol": "ETHUSDT",
@@ -375,8 +374,13 @@ class FlashTraderCode:
             }
 
         else:
-            last_status, usdt_value = self.BitgetHwnd.APITest({"symbol": "ETHUSDT_UMCBL"})
-            
+            last_status, usdt_value = self.BitgetHwnd.APITest({"symbol": "ETHUSDT", "productType": "USDT-FUTURES"})
+            takeProfitValue = 0.0
+            if side == "buy":
+                takeProfitValue = float(usdt_value) + stopSurplusPrice
+            else:
+                takeProfitValue = float(usdt_value) - stopSurplusPrice
+
             params = {
                 "symbol": "ETHUSDT",
                 "productType": "USDT-FUTURES",
@@ -388,8 +392,8 @@ class FlashTraderCode:
                 "size": str(size),
                 "force": "ioc",
                 # take profit settings
-                "stopSurplusPrice": f"{float(usdt_value) * (1 + float(stopSurplusPrice) / 100.0):.2f}",
-                "stopSurplusType": "market"
+                "presetStopSurplusPrice": f"{takeProfitValue:.2f}",
+                "presetStopSurplusExecturePrice": f"{takeProfitValue:.2f}"
             }
 
         return params
