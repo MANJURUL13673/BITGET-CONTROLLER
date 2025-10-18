@@ -33,8 +33,8 @@ class Client(object):
             sign = utils.signByRSA(utils.pre_hash(timestamp, method, request_path, str(body)), self.API_SECRET_KEY)
         header = utils.get_header(self.API_KEY, sign, timestamp, self.PASSPHRASE)
 
-        if additional_headers:
-            header.update(additional_headers)
+        #if additional_headers:
+        #    header.update(additional_headers)
 
         if self.first:
             #print("url:", url)
